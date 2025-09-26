@@ -2,28 +2,28 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  // Revisar token en cookie
   const token = req.cookies.get("token")?.value;
+  const url = req.nextUrl.clone();
 
-  // Rutas públicas
-  const publicPaths = ["/auth"];
-  const isPublic = publicPaths.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
-  );
-
-  // Si no hay token y la ruta no es pública → redirige a /auth
-  if (!token && !isPublic) {
-    return NextResponse.redirect(new URL("/auth", req.url));
+  // Rutas que NO requieren autenticación
+  if (url.pathname.startsWith("/auth")) {
+    if (token) {
+      // Si ya está logueado, redirige al home (/)
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    return NextResponse.next();
   }
 
-  // Si está logueado y va a /auth → redirige al dashboard
-  if (token && req.nextUrl.pathname === "/auth") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+  // Rutas protegidas
+  if (!token) {
+    // Redirige al login si no hay token
+    return NextResponse.redirect(new URL("/auth", req.url));
   }
 
   return NextResponse.next();
 }
 
+// Aplica a todas las rutas excepto _next, public, favicon
 export const config = {
-  matcher: ["/((?!_next).*)"], // protege todas menos _next
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };

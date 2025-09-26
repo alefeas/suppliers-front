@@ -21,7 +21,7 @@ export default function AuthPage() {
       if (email === "admin@example.com" && password === "123456") {
         // Guardamos token en cookie
         document.cookie = "token=fake-jwt-token; path=/";
-        router.push("/dashboard");
+        router.push("/");
       } else {
         setError("Invalid email or password");
       }
@@ -36,7 +36,7 @@ export default function AuthPage() {
       document.cookie = "token=fake-jwt-token; path=/";
       setSuccess("Registration successful! Redirecting to dashboard...");
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/");
       }, 1000);
     }
   };
